@@ -1,5 +1,6 @@
 import User from "../users/user.model";
 import bcrypt from "bcryptjs";
+import { generateToken } from "../../utils/generateToken";
 
 //@ts-ignore
 export const register = async (req, res) => {
@@ -23,6 +24,35 @@ export const register = async (req, res) => {
 
   res.status(201).json({
     message: "User registered",
+    user,
+  });
+};
+
+//@ts-ignore
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(400).json({
+      message: "Invalid credentials",
+    });
+  }
+
+  // first get the user saved in database password
+  const inDBUserPassword = user.password!;
+
+  const match = await bcrypt.compare(password, inDBUserPassword);
+  if (!match) {
+    return res.status(400).json({
+      message: "Invalid credentials",
+    });
+  }
+
+  const token = generateToken(user);
+
+  res.json({
+    token,
     user,
   });
 };
