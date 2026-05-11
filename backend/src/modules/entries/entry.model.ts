@@ -12,6 +12,10 @@ const entrySchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    chargedAmount: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: String,
       default: "IN",
