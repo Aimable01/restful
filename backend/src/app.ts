@@ -20,3 +20,5 @@ app.use(
     max: 100,
   }),
 );
+
+export default app;
