@@ -1,7 +1,11 @@
+import Signup from "./pages/Signup";
+import { Toaster } from "sonner";
+
 export default function App() {
   return (
     <div>
-      <p className="bg-amber-600 text-xl font-extrabold">welcome page</p>
+      <Toaster position="top-right" />
+      <Signup />
     </div>
   );
 }
