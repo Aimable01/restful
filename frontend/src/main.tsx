@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import ParkingsPage from "./pages/Parking.tsx";
 import CarEntriesPage from "./pages/CarEntriesPage.tsx";
 import ReportsPage from "./pages/Reports.tsx";
+import { AuthProvider } from "./context/AuthContext.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -23,6 +24,8 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Toaster position="top-right" />
 
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 );
