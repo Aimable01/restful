@@ -3,6 +3,23 @@ import Parking from "../parking/parking.model";
 import { calculateFee } from "../../utils/calculateFee";
 
 //@ts-ignore
+export const getEntries = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = 10;
+
+    const entries = await Entry.find()
+      .sort({ status: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json(entries);
+  } catch (error) {
+    res.status(500).json({ message: "Server error while fetching entries" });
+  }
+};
+
+//@ts-ignore
 export const registerEntry = async (req, res) => {
   const { plateNumber, parkingCode } = req.body;
 

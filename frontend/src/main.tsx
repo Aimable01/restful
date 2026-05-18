@@ -7,12 +7,14 @@ import SignupPage from "./pages/Signup.tsx";
 import LoginPage from "./pages/Login.tsx";
 import { Toaster } from "sonner";
 import ParkingsPage from "./pages/Parking.tsx";
+import CarEntriesPage from "./pages/CarEntriesPage.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/auth/signup", element: <SignupPage /> },
   { path: "/auth/login", element: <LoginPage /> },
   { path: "/parking", element: <ParkingsPage /> },
+  { path: "/entries", element: <CarEntriesPage /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
