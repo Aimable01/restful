@@ -8,6 +8,7 @@ import LoginPage from "./pages/Login.tsx";
 import { Toaster } from "sonner";
 import ParkingsPage from "./pages/Parking.tsx";
 import CarEntriesPage from "./pages/CarEntriesPage.tsx";
+import ReportsPage from "./pages/Reports.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
@@ -15,6 +16,7 @@ const router = createBrowserRouter([
   { path: "/auth/login", element: <LoginPage /> },
   { path: "/parking", element: <ParkingsPage /> },
   { path: "/entries", element: <CarEntriesPage /> },
+  { path: "/reports", element: <ReportsPage /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(

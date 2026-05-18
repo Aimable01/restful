@@ -5,6 +5,7 @@ const links = [
   { path: "/auth/login", name: "Login" },
   { path: "/parking", name: "Parking" },
   { path: "/entries", name: "Car entries" },
+  { path: "/reports", name: "Reports" },
 ];
 
 export default function App() {
