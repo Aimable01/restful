@@ -28,7 +28,8 @@ export default function LoginPage() {
     try {
       const response = await API.post("/auth/login", data);
       if (response.data) {
-        console.log("This is the response: ", response);
+        const token = response.data.token;
+        localStorage.setItem("token", token);
         const responseMessage = response.data.message;
         toast.success(responseMessage);
       }
