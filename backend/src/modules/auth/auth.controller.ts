@@ -4,7 +4,7 @@ import { generateToken } from "../../utils/generateToken";
 
 //@ts-ignore
 export const register = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, role, password } = req.body;
 
   const exists = await User.findOne({ email });
   if (exists) {
@@ -19,6 +19,7 @@ export const register = async (req, res) => {
     firstName,
     lastName,
     email,
+    role,
     password: hashedPassword,
   });
 

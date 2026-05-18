@@ -9,13 +9,16 @@ const schema = z.object({
   firstName: z.string().nonempty("First name is required"),
   lastName: z.string().nonempty("Last name is required"),
   email: z.email("Enter a valid email").nonempty("Email is required"),
+  role: z.string(),
   password: z.string("Enter your password").nonempty("Password is required"),
 });
 
+// type ROLE = "attendant" | "admin";
 interface signupInputs {
   firstName: string;
   lastName: string;
   email: string;
+  role: string;
   password: string;
 }
 
@@ -57,6 +60,12 @@ export default function SignupPage() {
         <label>Email</label>
         <input type="email" {...register("email")} />
         {errors.email && <p>{errors.email.message}</p>}
+
+        <label>Role</label>
+        <select {...register("role")}>
+          <option value="attendant">Attendant</option>
+          <option value="admin">Admin</option>
+        </select>
 
         <label>Password</label>
         <input type="password" {...register("password")} />
