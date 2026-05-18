@@ -13,6 +13,8 @@ import entryRoutes from "./modules/entries/entry.routes";
 import { connectDB } from "./config/db";
 import { specs } from "./docs/swagger";
 
+const PORT = process.env.PORT!;
+
 connectDB();
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -21,6 +23,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/parking", parkingRoutes);
 app.use("/api/entries", entryRoutes);
 
-app.listen(process.env.PORT!, () => {
-  console.log("🚀 App running");
+app.listen(PORT!, () => {
+  console.log(`🚀 App running at http://localhost:${PORT}`);
 });
