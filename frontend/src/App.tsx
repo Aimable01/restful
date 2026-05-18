@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 const links = [
   { path: "/auth/signup", name: "Signup" },
   { path: "/auth/login", name: "Login" },
+  { path: "/parking", name: "Parking" },
 ];
 
 export default function App() {

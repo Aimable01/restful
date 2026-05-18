@@ -6,11 +6,13 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import SignupPage from "./pages/Signup.tsx";
 import LoginPage from "./pages/Login.tsx";
 import { Toaster } from "sonner";
+import ParkingsPage from "./pages/Parking.tsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/auth/signup", element: <SignupPage /> },
   { path: "/auth/login", element: <LoginPage /> },
+  { path: "/parking", element: <ParkingsPage /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
