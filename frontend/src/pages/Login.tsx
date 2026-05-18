@@ -30,15 +30,19 @@ export default function LoginPage() {
   const submit = async (data: LoginInputs) => {
     try {
       const response = await API.post("/auth/login", data);
+
       if (response.data) {
         const token = response.data.token;
         const responseMessage = response.data.message;
+
         toast.success(responseMessage);
+
         login(token);
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response && error.response.data) {
+      if (axios.isAxiosError(error) && error.response?.data) {
         const serverErrorMessage = error.response.data.message;
+
         toast.error(serverErrorMessage);
       } else {
         toast.error("Something went wrong. Please try again.");
@@ -47,18 +51,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <p>Login page</p>
-      <form onSubmit={handleSubmit(submit)}>
-        <label>Email</label>
-        <input type="email" {...register("email")} />
-        {errors.email && <p>{errors.email.message}</p>}
-        <label>Password</label>
-        <input type="password" {...register("password")} />
-        {errors.password && <p>{errors.password.message}</p>}
-        <button type="submit" disabled={isSubmitting}>
+    <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-800">Welcome Back</h1>
+
+        <p className="text-gray-500 mt-2">
+          Login to access the parking management system
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(submit)} className="space-y-5">
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-700">
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            {...register("email")}
+            placeholder="Enter your email"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-700">
+            Password
+          </label>
+
+          <input
+            type="password"
+            {...register("password")}
+            placeholder="Enter your password"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition disabled:opacity-70 font-medium"
+        >
           {isSubmitting ? "Logging in..." : "Login"}
         </button>
+
+        <p className="text-center text-sm text-gray-500">
+          Don't have an account?{" "}
+          <a
+            href="/auth/signup"
+            className="text-blue-500 hover:text-blue-600 font-medium"
+          >
+            Register
+          </a>
+        </p>
       </form>
     </div>
   );

@@ -46,11 +46,12 @@ export default function ParkingsPage() {
   const fetchParkings = async (currentPage: number) => {
     try {
       const response = await API.get(`/parking?page=${currentPage}`);
+
       if (response.data) {
         setParkings(response.data);
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response && error.response.data) {
+      if (axios.isAxiosError(error) && error.response?.data) {
         toast.error(error.response.data.message || "Failed to fetch parkings");
       } else {
         toast.error("Something went wrong while fetching parkings.");
@@ -65,14 +66,18 @@ export default function ParkingsPage() {
   const submit = async (data: ParkingInputs) => {
     try {
       const response = await API.post("/parking", data);
+
       if (response.data) {
         toast.success("Parking space created successfully!");
+
         reset();
+
         fetchParkings(page);
       }
     } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response && error.response.data) {
+      if (axios.isAxiosError(error) && error.response?.data) {
         const serverErrorMessage = error.response.data.message;
+
         toast.error(serverErrorMessage || "Failed to create parking");
       } else {
         toast.error("Something went wrong. Please try again.");
@@ -81,72 +86,225 @@ export default function ParkingsPage() {
   };
 
   return (
-    <div>
-      <h2>Create Parking</h2>
-      <form onSubmit={handleSubmit(submit)}>
-        <label>Code</label>
-        <input type="text" {...register("code")} />
-        {errors.code && <p>{errors.code.message}</p>}
-
-        <label>Parking Name</label>
-        <input type="text" {...register("parkingName")} />
-        {errors.parkingName && <p>{errors.parkingName.message}</p>}
-
-        <label>Available Spaces</label>
-        <input
-          type="number"
-          {...register("availableSpaces", { valueAsNumber: true })}
-        />
-        {errors.availableSpaces && <p>{errors.availableSpaces.message}</p>}
-
-        <label>Location</label>
-        <input type="text" {...register("location")} />
-        {errors.location && <p>{errors.location.message}</p>}
-
-        <label>Fee Per Hour</label>
-        <input
-          type="number"
-          step="0.01"
-          {...register("feePerHour", { valueAsNumber: true })}
-        />
-        {errors.feePerHour && <p>{errors.feePerHour.message}</p>}
-
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Parking"}
-        </button>
-      </form>
-
-      <hr />
-
-      <h2>Parking Spaces List</h2>
-      {parkings.length === 0 ? (
-        <p>No parking slots available.</p>
-      ) : (
-        <ul>
-          {parkings.map((item) => (
-            <li key={item._id}>
-              <strong>{item.parkingName}</strong> ({item.code}) -{" "}
-              {item.location} | Spaces: {item.availableSpaces} | Fee: $
-              {item.feePerHour}/hr
-            </li>
-          ))}
-        </ul>
-      )}
-
+    <div className="space-y-8">
       <div>
-        <button
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          disabled={page === 1}
+        <h1 className="text-3xl font-bold text-gray-800">Parking Management</h1>
+
+        <p className="text-gray-500 mt-1">
+          Create and manage parking spaces easily.
+        </p>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          Create Parking
+        </h2>
+
+        <form
+          onSubmit={handleSubmit(submit)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-5"
         >
-          Previous
-        </button>
-        <span> Page {page} </span>
-        <button
-          onClick={() => setPage((prev) => prev + 1)}
-          disabled={parkings.length < 10}
-        >
-          Next
-        </button>
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Parking Code
+            </label>
+
+            <input
+              type="text"
+              {...register("code")}
+              placeholder="e.g PK-01"
+              className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            />
+
+            {errors.code && (
+              <p className="text-red-500 text-sm mt-1">{errors.code.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Parking Name
+            </label>
+
+            <input
+              type="text"
+              {...register("parkingName")}
+              placeholder="e.g Downtown Parking"
+              className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            />
+
+            {errors.parkingName && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.parkingName.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Available Spaces
+            </label>
+
+            <input
+              type="number"
+              {...register("availableSpaces", {
+                valueAsNumber: true,
+              })}
+              placeholder="e.g 50"
+              className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            />
+
+            {errors.availableSpaces && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.availableSpaces.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Location
+            </label>
+
+            <input
+              type="text"
+              {...register("location")}
+              placeholder="e.g Kigali City"
+              className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            />
+
+            {errors.location && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.location.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700">
+              Fee Per Hour ($)
+            </label>
+
+            <input
+              type="number"
+              step="0.01"
+              {...register("feePerHour", {
+                valueAsNumber: true,
+              })}
+              placeholder="e.g 2.50"
+              className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
+            />
+
+            {errors.feePerHour && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.feePerHour.message}
+              </p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition disabled:opacity-70"
+            >
+              {isSubmitting ? "Creating..." : "Create Parking"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Parking Spaces List
+          </h2>
+
+          <span className="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-full">
+            {parkings.length} Results
+          </span>
+        </div>
+
+        {parkings.length === 0 ? (
+          <div className="text-center py-10 text-gray-500 border rounded-lg">
+            No parking slots available.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-gray-200 text-left">
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Parking Name
+                  </th>
+
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Code
+                  </th>
+
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Location
+                  </th>
+
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Spaces
+                  </th>
+
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Fee / Hr
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {parkings.map((item) => (
+                  <tr
+                    key={item._id}
+                    className="border-b border-gray-100 hover:bg-gray-50 transition"
+                  >
+                    <td className="py-4 px-2 font-medium text-gray-800">
+                      {item.parkingName}
+                    </td>
+
+                    <td className="py-4 px-2 text-gray-600">{item.code}</td>
+
+                    <td className="py-4 px-2 text-gray-600">{item.location}</td>
+
+                    <td className="py-4 px-2 text-gray-600">
+                      {item.availableSpaces}
+                    </td>
+
+                    <td className="py-4 px-2">
+                      <span className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full">
+                        ${item.feePerHour}/hr
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <button
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            disabled={page === 1}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+          >
+            Previous
+          </button>
+
+          <span className="text-gray-700 font-medium">Page {page}</span>
+
+          <button
+            onClick={() => setPage((prev) => prev + 1)}
+            disabled={parkings.length < 10}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
