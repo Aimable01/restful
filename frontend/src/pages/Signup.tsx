@@ -19,7 +19,7 @@ interface signupInputs {
   password: string;
 }
 
-export default function Signup() {
+export default function SignupPage() {
   const {
     handleSubmit,
     register,

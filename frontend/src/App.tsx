@@ -1,11 +1,21 @@
-import Signup from "./pages/Signup";
-import { Toaster } from "sonner";
+import { Link } from "react-router-dom";
+
+const links = [
+  { path: "/auth/signup", name: "Signup" },
+  { path: "/auth/login", name: "Login" },
+];
 
 export default function App() {
   return (
     <div>
-      <Toaster position="top-right" />
-      <Signup />
+      <p>Welcome to the app</p>
+      <div>
+        {links.map((li, i) => (
+          <Link key={i} to={li.path}>
+            {li.name}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
