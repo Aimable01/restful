@@ -18,6 +18,7 @@ interface ReportInputs {
 
 interface ReportItem {
   _id: string;
+  w;
   plateNumber: string;
   parkingCode: string;
   entryDateTime: string;
