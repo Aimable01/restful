@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import API from "../api/axios";
 import { toast } from "sonner";
+import axios from "axios";
 
 const schema = z.object({
   firstName: z.string().nonempty("First name is required"),
@@ -34,8 +35,13 @@ export default function Signup() {
         const responseMessage = response.data.message;
         toast.success(responseMessage);
       }
-    } catch (error) {
-      toast.error("Something went wrong. Please later");
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        const serverErrorMessage = error.response.data.message;
+        toast.error(serverErrorMessage);
+      } else {
+        toast.error("Something went wrong. Please later");
+      }
     }
   };
   return (
