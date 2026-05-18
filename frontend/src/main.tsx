@@ -12,12 +12,17 @@ import ReportsPage from "./pages/Reports.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 
 const router = createBrowserRouter([
-  { path: "/", element: <App /> },
-  { path: "/auth/signup", element: <SignupPage /> },
-  { path: "/auth/login", element: <LoginPage /> },
-  { path: "/parking", element: <ParkingsPage /> },
-  { path: "/entries", element: <CarEntriesPage /> },
-  { path: "/reports", element: <ReportsPage /> },
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      { path: "/auth/signup", element: <SignupPage /> },
+      { path: "/auth/login", element: <LoginPage /> },
+      { path: "/parking", element: <ParkingsPage /> },
+      { path: "/entries", element: <CarEntriesPage /> },
+      { path: "/reports", element: <ReportsPage /> },
+    ],
+  },
 ]);
 
 createRoot(document.getElementById("root")!).render(
