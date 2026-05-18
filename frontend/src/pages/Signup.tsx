@@ -37,6 +37,7 @@ export default function SignupPage() {
       if (response.data) {
         const responseMessage = response.data.message;
         toast.success(responseMessage);
+        window.location.href = "/auth/login";
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {

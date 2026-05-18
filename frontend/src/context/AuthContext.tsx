@@ -17,18 +17,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
+
     if (storedToken) {
       setToken(storedToken);
       setIsAuthenticated(true);
     } else {
-      redirectToLogin();
+      const publicRoutes = ["/auth/login"];
+
+      if (!publicRoutes.includes(window.location.pathname)) {
+        redirectToLogin();
+      }
     }
+
     setIsLoading(false);
   }, []);
 
   const redirectToLogin = () => {
-    if (window.location.href !== "/auth/login") {
-      window.location.href = "/auth/login";
+    if (window.location.pathname !== "/auth/login") {
+      window.location.replace("/auth/login");
     }
   };
 
@@ -43,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("token");
     setToken(null);
     setIsAuthenticated(false);
-    window.location.href = "/auth/login";
+    window.location.replace("/auth/login");
   };
 
   return (

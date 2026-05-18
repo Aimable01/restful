@@ -4,6 +4,7 @@ import z from "zod";
 import axios from "axios";
 import { toast } from "sonner";
 import API from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 const schema = z.object({
   email: z.email().nonempty("Please enter your email"),
@@ -24,14 +25,16 @@ export default function LoginPage() {
     resolver: zodResolver(schema),
   });
 
+  const { login } = useAuth();
+
   const submit = async (data: LoginInputs) => {
     try {
       const response = await API.post("/auth/login", data);
       if (response.data) {
         const token = response.data.token;
-        localStorage.setItem("token", token);
         const responseMessage = response.data.message;
         toast.success(responseMessage);
+        login(token);
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response && error.response.data) {

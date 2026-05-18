@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 const links = [
   { path: "/auth/signup", name: "Signup" },
@@ -9,6 +10,7 @@ const links = [
 ];
 
 export default function App() {
+  const { logout } = useAuth();
   return (
     <div>
       <p>Welcome to the app</p>
@@ -18,6 +20,8 @@ export default function App() {
             {li.name}
           </Link>
         ))}
+
+        <button onClick={logout}>Logout</button>
       </div>
     </div>
   );
