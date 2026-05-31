@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import API from "../api/axios";
 import { toast } from "sonner";
 import axios from "axios";
+import { useState } from "react";
 
 const schema = z.object({
   firstName: z.string().nonempty("First name is required"),
@@ -11,6 +12,11 @@ const schema = z.object({
   email: z.email("Enter a valid email").nonempty("Email is required"),
   role: z.string(),
   password: z.string().nonempty("Password is required"),
+});
+
+const otpSchema = z.object({
+  email: z.email("Enter a valid email").nonempty("Email is required"),
+  otp: z.string().nonempty("OTP is required"),
 });
 
 interface SignupInputs {
@@ -21,11 +27,19 @@ interface SignupInputs {
   password: string;
 }
 
+interface OTPInputs {
+  email: string;
+  otp: string;
+}
+
 export default function SignupPage() {
+  const [showOTP, setShowOTP] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+
   const {
-    handleSubmit,
-    register,
-    formState: { isSubmitting, errors },
+    handleSubmit: handleSignupSubmit,
+    register: registerSignup,
+    formState: { isSubmitting: isSignupSubmitting, errors: signupErrors },
   } = useForm<SignupInputs>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -33,9 +47,43 @@ export default function SignupPage() {
     },
   });
 
+  const {
+    handleSubmit: handleOTPSubmit,
+    register: registerOTP,
+    formState: { isSubmitting: isOTPSumbitting, errors: otpErrors },
+  } = useForm<OTPInputs>({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      email: registeredEmail,
+    },
+  });
+
   const submit = async (data: SignupInputs) => {
     try {
       const response = await API.post("/auth/register", data);
+
+      if (response.data) {
+        const responseMessage = response.data.message;
+
+        toast.success(responseMessage);
+
+        setRegisteredEmail(data.email);
+        setShowOTP(true);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const serverErrorMessage = error.response.data.message;
+
+        toast.error(serverErrorMessage);
+      } else {
+        toast.error("Something went wrong. Please try later.");
+      }
+    }
+  };
+
+  const verifyOTP = async (data: OTPInputs) => {
+    try {
+      const response = await API.post("/auth/verify-otp", data);
 
       if (response.data) {
         const responseMessage = response.data.message;
@@ -55,6 +103,78 @@ export default function SignupPage() {
     }
   };
 
+  if (showOTP) {
+    return (
+      <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-800">Verify OTP</h1>
+
+          <p className="text-gray-500 mt-2">Enter the OTP sent to your email</p>
+        </div>
+
+        <form onSubmit={handleOTPSubmit(verifyOTP)} className="space-y-5">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              {...registerOTP("email")}
+              defaultValue={registeredEmail}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter email address"
+            />
+
+            {otpErrors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {otpErrors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
+              OTP Code
+            </label>
+
+            <input
+              type="text"
+              {...registerOTP("otp")}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter 6-digit OTP"
+              maxLength={6}
+            />
+
+            {otpErrors.otp && (
+              <p className="text-red-500 text-sm mt-1">
+                {otpErrors.otp.message}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isOTPSumbitting}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition disabled:opacity-70 font-medium"
+          >
+            {isOTPSumbitting ? "Verifying..." : "Verify OTP"}
+          </button>
+
+          <p className="text-center text-sm text-gray-500">
+            <button
+              type="button"
+              onClick={() => setShowOTP(false)}
+              className="text-blue-500 hover:text-blue-600 font-medium"
+            >
+              Back to Register
+            </button>
+          </p>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
       <div className="mb-8 text-center">
@@ -65,7 +185,7 @@ export default function SignupPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(submit)} className="space-y-5">
+      <form onSubmit={handleSignupSubmit(submit)} className="space-y-5">
         <div>
           <label className="block mb-2 text-sm font-medium text-gray-700">
             First Name
@@ -73,14 +193,14 @@ export default function SignupPage() {
 
           <input
             type="text"
-            {...register("firstName")}
+            {...registerSignup("firstName")}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Enter first name"
           />
 
-          {errors.firstName && (
+          {signupErrors.firstName && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.firstName.message}
+              {signupErrors.firstName.message}
             </p>
           )}
         </div>
@@ -92,14 +212,14 @@ export default function SignupPage() {
 
           <input
             type="text"
-            {...register("lastName")}
+            {...registerSignup("lastName")}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Enter last name"
           />
 
-          {errors.lastName && (
+          {signupErrors.lastName && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.lastName.message}
+              {signupErrors.lastName.message}
             </p>
           )}
         </div>
@@ -111,13 +231,15 @@ export default function SignupPage() {
 
           <input
             type="email"
-            {...register("email")}
+            {...registerSignup("email")}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Enter email address"
           />
 
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          {signupErrors.email && (
+            <p className="text-red-500 text-sm mt-1">
+              {signupErrors.email.message}
+            </p>
           )}
         </div>
 
@@ -127,7 +249,7 @@ export default function SignupPage() {
           </label>
 
           <select
-            {...register("role")}
+            {...registerSignup("role")}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 bg-white"
           >
             <option value="attendant">Attendant</option>
@@ -142,24 +264,24 @@ export default function SignupPage() {
 
           <input
             type="password"
-            {...register("password")}
+            {...registerSignup("password")}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Enter password"
           />
 
-          {errors.password && (
+          {signupErrors.password && (
             <p className="text-red-500 text-sm mt-1">
-              {errors.password.message}
+              {signupErrors.password.message}
             </p>
           )}
         </div>
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSignupSubmitting}
           className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition disabled:opacity-70 font-medium"
         >
-          {isSubmitting ? "Submitting..." : "Register"}
+          {isSignupSubmitting ? "Submitting..." : "Register"}
         </button>
 
         <p className="text-center text-sm text-gray-500">

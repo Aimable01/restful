@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(storedToken);
       setIsAuthenticated(true);
     } else {
-      const publicRoutes = ["/auth/login"];
+      const publicRoutes = ["/auth/login", "/auth/signup"];
 
       if (!publicRoutes.includes(window.location.pathname)) {
         redirectToLogin();

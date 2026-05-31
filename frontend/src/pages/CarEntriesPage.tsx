@@ -26,8 +26,22 @@ interface CarEntryItem extends EntryInputs {
   updatedAt: string;
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
 export default function CarEntriesPage() {
   const [activeEntries, setActiveEntries] = useState<CarEntryItem[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    pages: 0,
+  });
 
   const {
     handleSubmit,
@@ -38,16 +52,17 @@ export default function CarEntriesPage() {
     resolver: zodResolver(schema),
   });
 
-  const fetchEntries = async () => {
+  const fetchEntries = async (currentPage: number = 1) => {
     try {
-      const response = await API.get("/entries");
+      const response = await API.get(`/entries?page=${currentPage}`);
 
       if (response.data) {
-        const insideParkings = response.data.filter(
+        const insideParkings = response.data.data.filter(
           (car: CarEntryItem) => car.status === "IN",
         );
 
         setActiveEntries(insideParkings);
+        setPagination(response.data.pagination);
       }
     } catch (error) {
       console.log("Could not load tracking array from server:", error);
@@ -55,8 +70,8 @@ export default function CarEntriesPage() {
   };
 
   useEffect(() => {
-    fetchEntries();
-  }, []);
+    fetchEntries(page);
+  }, [page]);
 
   const submitEntry = async (data: EntryInputs) => {
     try {
@@ -65,7 +80,7 @@ export default function CarEntriesPage() {
       if (response.data) {
         toast.success(response.data.message || "Car registered successfully!");
         reset();
-        fetchEntries();
+        fetchEntries(page);
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data) {
@@ -89,7 +104,7 @@ export default function CarEntriesPage() {
           `${response.data.message || "Car exited!"} Total Fee: $${totalBill}`,
         );
 
-        fetchEntries();
+        fetchEntries(page);
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data) {
@@ -248,6 +263,31 @@ export default function CarEntriesPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {pagination.pages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span className="text-gray-700 font-medium">
+              Page {pagination.page} of {pagination.pages} ({pagination.total}{" "}
+              total)
+            </span>
+
+            <button
+              onClick={() => setPage((prev) => prev + 1)}
+              disabled={page >= pagination.pages}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

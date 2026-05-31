@@ -13,6 +13,7 @@ import reportRoutes from "./modules/reports/report.routes";
 
 import { connectDB } from "./config/db";
 import { specs } from "./docs/swagger";
+import logger from "./utils/logger";
 
 const PORT = process.env.PORT!;
 
@@ -26,5 +27,5 @@ app.use("/api/entries", entryRoutes);
 app.use("/api/reports", reportRoutes);
 
 app.listen(PORT!, () => {
-  console.log(`🚀 App running at http://localhost:${PORT}`);
+  logger.info(`🚀 App running at http://localhost:${PORT}`);
 });

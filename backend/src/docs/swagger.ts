@@ -7,6 +7,20 @@ export const specs = swaggerJsDoc({
       title: "Parking system",
       version: "1.0.0",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
 
   apis: ["./src/modules/**/*.ts"],
