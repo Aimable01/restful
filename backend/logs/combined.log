@@ -17,3 +17,7 @@
 {"level":"info","message":"User logged in: kwizaima14@gmail.com","timestamp":"2026-05-31T16:08:04.561Z"}
 {"level":"info","message":"Parking created: 001","timestamp":"2026-05-31T16:08:22.075Z"}
 {"level":"info","message":"Incoming cars report generated from 2026-05-01T21:08 to 2026-05-31T23:08","timestamp":"2026-05-31T16:08:46.431Z"}
+{"level":"info","message":"🚀 App running at http://localhost:4000","timestamp":"2026-05-31T21:11:16.095Z"}
+{"level":"info","message":"Car exited: RAB123","timestamp":"2026-05-31T21:12:03.434Z"}
+{"level":"info","message":"Parking updated: 0043","timestamp":"2026-05-31T21:12:16.115Z"}
+{"level":"info","message":"Parking deleted: 0043","timestamp":"2026-05-31T21:12:25.636Z"}
