@@ -42,6 +42,7 @@ export default function CarEntriesPage() {
     total: 0,
     pages: 0,
   });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -75,12 +76,23 @@ export default function CarEntriesPage() {
 
   const submitEntry = async (data: EntryInputs) => {
     try {
-      const response = await API.post("/entries/entry", data);
-
-      if (response.data) {
-        toast.success(response.data.message || "Car registered successfully!");
-        reset();
-        fetchEntries(page);
+      if (editingId) {
+        const response = await API.put(`/entries/${editingId}`, data);
+        if (response.data) {
+          toast.success("Entry updated successfully!");
+          setEditingId(null);
+          reset();
+          fetchEntries(page);
+        }
+      } else {
+        const response = await API.post("/entries/entry", data);
+        if (response.data) {
+          toast.success(
+            response.data.message || "Car registered successfully!",
+          );
+          reset();
+          fetchEntries(page);
+        }
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data) {
@@ -115,6 +127,39 @@ export default function CarEntriesPage() {
     }
   };
 
+  const handleEdit = (entry: CarEntryItem) => {
+    setEditingId(entry._id);
+    reset({
+      plateNumber: entry.plateNumber,
+      parkingCode: entry.parkingCode,
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this entry?")) {
+      return;
+    }
+
+    try {
+      const response = await API.delete(`/entries/${id}`);
+      if (response.data) {
+        toast.success("Entry deleted successfully!");
+        fetchEntries(page);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        toast.error(error.response.data.message || "Failed to delete entry");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    reset();
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -127,9 +172,20 @@ export default function CarEntriesPage() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
-          Register Car Entry
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {editingId ? "Edit Car Entry" : "Register Car Entry"}
+          </h2>
+          {editingId && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
         <form
           onSubmit={handleSubmit(submitEntry)}
@@ -179,7 +235,13 @@ export default function CarEntriesPage() {
               disabled={isSubmitting}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition disabled:opacity-70"
             >
-              {isSubmitting ? "Processing..." : "Register Entry"}
+              {isSubmitting
+                ? editingId
+                  ? "Updating..."
+                  : "Processing..."
+                : editingId
+                  ? "Update Entry"
+                  : "Register Entry"}
             </button>
           </div>
         </form>
@@ -222,7 +284,7 @@ export default function CarEntriesPage() {
                   </th>
 
                   <th className="py-3 px-2 text-sm font-semibold text-gray-600">
-                    Action
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -252,12 +314,26 @@ export default function CarEntriesPage() {
                     </td>
 
                     <td className="py-4 px-2">
-                      <button
-                        onClick={() => handleExit(car._id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition"
-                      >
-                        Process Exit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(car)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleExit(car._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
+                        >
+                          Exit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(car._id)}
+                          className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

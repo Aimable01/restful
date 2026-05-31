@@ -46,6 +46,7 @@ export default function ParkingsPage() {
     total: 0,
     pages: 0,
   });
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -79,24 +80,60 @@ export default function ParkingsPage() {
 
   const submit = async (data: ParkingInputs) => {
     try {
-      const response = await API.post("/parking", data);
-
-      if (response.data) {
-        toast.success("Parking space created successfully!");
-
-        reset();
-
-        fetchParkings(page);
+      if (editingId) {
+        const response = await API.put(`/parking/${editingId}`, data);
+        if (response.data) {
+          toast.success("Parking space updated successfully!");
+          setEditingId(null);
+          reset();
+          fetchParkings(page);
+        }
+      } else {
+        const response = await API.post("/parking", data);
+        if (response.data) {
+          toast.success("Parking space created successfully!");
+          reset();
+          fetchParkings(page);
+        }
       }
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response?.data) {
         const serverErrorMessage = error.response.data.message;
-
         toast.error(serverErrorMessage || "Failed to create parking");
       } else {
         toast.error("Something went wrong. Please try again.");
       }
     }
+  };
+
+  const handleEdit = (parking: ParkingItem) => {
+    setEditingId(parking._id);
+    reset(parking);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this parking space?")) {
+      return;
+    }
+
+    try {
+      const response = await API.delete(`/parking/${id}`);
+      if (response.data) {
+        toast.success("Parking space deleted successfully!");
+        fetchParkings(page);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response?.data) {
+        toast.error(error.response.data.message || "Failed to delete parking");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    reset();
   };
 
   return (
@@ -110,9 +147,20 @@ export default function ParkingsPage() {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
-          Create Parking
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {editingId ? "Edit Parking" : "Create Parking"}
+          </h2>
+          {editingId && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="text-gray-500 hover:text-gray-700 text-sm"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
         <form
           onSubmit={handleSubmit(submit)}
@@ -222,7 +270,13 @@ export default function ParkingsPage() {
               disabled={isSubmitting}
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition disabled:opacity-70"
             >
-              {isSubmitting ? "Creating..." : "Create Parking"}
+              {isSubmitting
+                ? editingId
+                  ? "Updating..."
+                  : "Creating..."
+                : editingId
+                  ? "Update Parking"
+                  : "Create Parking"}
             </button>
           </div>
         </form>
@@ -267,6 +321,10 @@ export default function ParkingsPage() {
                   <th className="py-3 px-2 text-sm font-semibold text-gray-600">
                     Fee / Hr
                   </th>
+
+                  <th className="py-3 px-2 text-sm font-semibold text-gray-600">
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -292,6 +350,23 @@ export default function ParkingsPage() {
                       <span className="bg-green-100 text-green-700 text-sm px-3 py-1 rounded-full">
                         ${item.feePerHour}/hr
                       </span>
+                    </td>
+
+                    <td className="py-4 px-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -33,6 +33,23 @@ export const getEntries = async (req, res) => {
 };
 
 //@ts-ignore
+export const getEntryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const entry = await Entry.findById(id);
+
+    if (!entry) {
+      return res.status(404).json({ message: "Entry not found" });
+    }
+
+    res.json(entry);
+  } catch (error) {
+    logger.error("Error fetching entry", error);
+    res.status(500).json({ message: "Error fetching entry" });
+  }
+};
+
+//@ts-ignore
 export const registerEntry = async (req, res) => {
   try {
     const { plateNumber, parkingCode } = req.body;
@@ -114,5 +131,41 @@ export const registerExit = async (req, res) => {
   } catch (error) {
     logger.error("Error registering exit", error);
     res.status(500).json({ message: "Error registering exit" });
+  }
+};
+
+//@ts-ignore
+export const updateEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const entry = await Entry.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!entry) {
+      return res.status(404).json({ message: "Entry not found" });
+    }
+
+    logger.info(`Entry updated: ${entry._id}`);
+    res.json(entry);
+  } catch (error) {
+    logger.error("Error updating entry", error);
+    res.status(500).json({ message: "Error updating entry" });
+  }
+};
+
+//@ts-ignore
+export const deleteEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const entry = await Entry.findByIdAndDelete(id);
+
+    if (!entry) {
+      return res.status(404).json({ message: "Entry not found" });
+    }
+
+    logger.info(`Entry deleted: ${entry._id}`);
+    res.json({ message: "Entry deleted successfully" });
+  } catch (error) {
+    logger.error("Error deleting entry", error);
+    res.status(500).json({ message: "Error deleting entry" });
   }
 };

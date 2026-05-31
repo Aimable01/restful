@@ -1,6 +1,13 @@
 import express from "express";
 
-import { registerEntry, registerExit, getEntries } from "./entry.controller";
+import {
+  registerEntry,
+  registerExit,
+  getEntries,
+  getEntryById,
+  updateEntry,
+  deleteEntry,
+} from "./entry.controller";
 import { protect } from "../../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -29,6 +36,27 @@ const router = express.Router();
  *              description: List of entries
  */
 router.get("/", protect, getEntries);
+
+/**
+ * @swagger
+ * /api/entries/{id}:
+ *  get:
+ *      summary: Get an entry by ID.
+ *      tags: [Entries]
+ *      security:
+ *          - bearerAuth: []
+ *      parameters:
+ *          - in: path
+ *            name: id
+ *            required: true
+ *            schema:
+ *              type: string
+ *            description: Entry ID
+ *      responses:
+ *          200:
+ *              description: Entry details
+ */
+router.get("/:id", protect, getEntryById);
 
 /**
  * @swagger
@@ -75,5 +103,61 @@ router.post("/entry", protect, registerEntry);
  *              description: Car exit registered successfully
  */
 router.post("/exit/:id", protect, registerExit);
+
+/**
+ * @swagger
+ * /api/entries/{id}:
+ *  put:
+ *      summary: Update an entry.
+ *      tags: [Entries]
+ *      security:
+ *          - bearerAuth: []
+ *      parameters:
+ *          - in: path
+ *            name: id
+ *            required: true
+ *            schema:
+ *              type: string
+ *            description: Entry ID
+ *      requestBody:
+ *          required: true
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      type: object
+ *                      properties:
+ *                          plateNumber:
+ *                              type: string
+ *                          parkingCode:
+ *                              type: string
+ *                          status:
+ *                              type: string
+ *                              enum: [IN, OUT]
+ *      responses:
+ *          200:
+ *              description: Entry updated successfully
+ */
+router.put("/:id", protect, updateEntry);
+
+/**
+ * @swagger
+ * /api/entries/{id}:
+ *  delete:
+ *      summary: Delete an entry.
+ *      tags: [Entries]
+ *      security:
+ *          - bearerAuth: []
+ *      parameters:
+ *          - in: path
+ *            name: id
+ *            required: true
+ *            schema:
+ *              type: string
+ *            description: Entry ID
+ *      responses:
+ *          200:
+ *              description: Entry deleted successfully
+ */
+router.delete("/:id", protect, deleteEntry);
 
 export default router;
